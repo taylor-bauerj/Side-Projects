@@ -142,7 +142,16 @@
 	var parsedJson = JSON.parse(jsonData);
 	console.log(parsedJson.items);
 	
+	var requestURL = 'https://github.com/taylor-bauerj/Side-Projects/blob/master/ko%20learning/data.json';
 	
+	var request = new XMLHttpRequest();
+	request.open('GET', requestURL);
+	request.responseType = 'json';
+	request.send();
+	
+	request.onload = function() {
+		console.log(request.response);
+	}
 </script>
 </body>
 
