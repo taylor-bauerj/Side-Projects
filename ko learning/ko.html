@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title> Knockout </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+	<div id="containerHead">
+		<ul class="folders" data-bind="foreach: folders">
+			<li data-bind="text: $data, click: $root.goToFolder"></li>
+		</ul>
+	</div>
+	
+	<div class="module" id="home">
+		<h1> Knockout Learning Home </h1>
+	</div>
+	
+	<div class="module" id="container1">
+		<p>First name: <input data-bind="value: firstName" /></p>
+		<p>Last name: <input data-bind="value: lastName" /></p>
+		<h2>Hello, <span data-bind="text: fullName"> </span>!</h2>
+	</div>
+	
+	<br/>
+	
+	<div id="container2" class="module">
+		<div>
+			<span data-bind="text: numberOfClicks"></span>
+		</div>
+		<button data-bind="click: registerClick">click</button>
+	</div>
+	
+	<br/>
+	
+	<div id="container3" class="simple-list module">
+		<form data-bind="submit: addItem">
+			New item:
+			<input data-bind="value: itemToAdd, valueUpdate: 'afterkeydown'" />
+			<button type="submit" data-bind="enable: itemToAdd().length > 0">Add</button>
+			<p>Your items:</p>
+			<select class="select1" multiple="multiple" width="50" data-bind="options: items, selectedOptions: selectedItems"></select>
+		
+			<button data-bind="click: removeItem, enable: selectedItems().length > 0">Remove Item</button>
+			<br/><br/>
+			<input data-bind="value: itemToEdit" />
+			<button data-bind="click: editItem">Edit Item</button>
+		</form>
+	</div>
+
+<!-- JQuery JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/knockout-3.4.2.js"></script>
+<script src="js/sammy-latest.min.js"></script>
+<script type="text/javascript">
+	var ViewModel = function(first, last) {
+		var self = this;
+		self.firstName = ko.observable(first);
+		self.lastName = ko.observable(last);
+		self.fullName = ko.computed(function(){
+			return self.firstName() + " " + self.lastName();
+		});
+		
+		
+	};
+	
+	var ClickModel = function() {
+		this.numberOfClicks = ko.observable(0);
+		this.registerClick = function() {
+			this.numberOfClicks(this.numberOfClicks() + 1);
+		};
+	};
+	
+	var SimpleList = function(items) {
+		this.items = ko.observableArray(items);
+		this.itemToAdd = ko.observable("");
+		this.itemToEdit = ko.observable("");
+		this.selectedItems = ko.observableArray();
+		
+		
+		this.addItem = function() {
+			if(this.itemToAdd() != ""){
+				this.items.push(this.itemToAdd());
+				this.itemToAdd("");
+			}
+		}.bind(this);
+		
+		
+		this.removeItem = function() {
+			this.items.removeAll(this.selectedItems());
+			this.selectedItems([]);
+		}.bind(this);
+		
+		this.editItem = function() {
+			if(this.itemToEdit() != "" && this.selectedItems().length == 1) {
+				this.items.replace(this.selectedItems()[0], this.itemToEdit());
+			}
+		}.bind(this);
+		
+	};
+	
+	var NavbarModel = function() {
+		self = this;
+		self.folders = ['Home', 'Name', 'Clicker', 'Shopping List'];
+		self.chosenFolderId = ko.observable();
+		self.chosenFolderData = ko.observable();
+		
+		self.goToFolder = function(folder) {
+			location.hash = folder;
+		};
+		
+		Sammy(function() {
+			this.get('#Name', function() {
+				$('.module').css('display', 'none');
+				$('#container1').css('display', 'initial');
+			});
+			this.get('#Clicker', function() {
+				$('.module').css('display', 'none');
+				$('#container2').css('display', 'initial');
+			});
+			this.get('#Shopping%20List', function() {
+				$('.module').css('display', 'none');
+				$('#container3').css('display', 'initial');
+			});
+			this.get('#Home', function() {
+				$('.module').css('display', 'none');
+				$('#home').css('display', 'initial');
+			});
+		}).run();
+	};
+	
+	var shopping = new SimpleList(["A","B","C"]);
+	
+	ko.applyBindings(new ViewModel("first", "last"), document.getElementById("container1"));
+	ko.applyBindings(new ClickModel(), document.getElementById("container2"));
+	ko.applyBindings(shopping, document.getElementById("container3"));
+	ko.applyBindings(new NavbarModel(), document.getElementById("containerHead"));
+	
+	var jsonData = ko.toJSON(shopping);
+	var parsedJson = JSON.parse(jsonData);
+	console.log(parsedJson.items);
+	
+	
+</script>
+</body>
+
+</html>
