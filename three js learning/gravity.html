@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Raycaster</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script src="js/FlyControls.js"></script>
+    <script>
+	
+		var container;
+		var camera, renderer, scene, raycaster;
+		var geometry, root;
+		
+		var mouse = new THREE.Vector2(), INTERSECTED;
+		var radius = 100;
+		
+		var mouseX = 0;
+		var mouseY = 0;
+		
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+		var controls;
+		var clock = new THREE.Clock();
+		
+		init();
+		animate();
+	
+		function init() {
+			container = document.createElement('div');
+			document.body.appendChild(container);
+		
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xf0f0f0 );
+			var aspect = window.innerWidth / window.innerHeight;
+
+			camera = new THREE.PerspectiveCamera( 70, aspect, 1, 15000 );
+			camera.position.z = 500;
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			container.appendChild( renderer.domElement );
+			
+			var geometry = new THREE.BoxBufferGeometry(20,20,20);
+			var material = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
+			
+			for(var i = 0; i < 5000; i++){
+			root = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff}));
+			
+			root.position.x = Math.random() * 500;
+			root.position.y = Math.random() * 500;
+			root.position.z = Math.random() * 500;
+			
+			root.scale.x = Math.random() + 0.5;
+			root.scale.y = Math.random() + 0.5;
+			root.scale.z = Math.random() + 0.5;
+			
+			scene.add(root);
+			}
+			
+			raycaster = new THREE.Raycaster();
+			
+			// lights
+			/*var dLight = new THREE.DirectionalLight(0xFFFFFF, 1);
+			dLight.position.set(1,1,1).normalize();
+			scene.add(dLight);*/
+			
+			var light = new THREE.PointLight(0xFFFFFF, 0.5);
+			light.position.set(0, 0, 1000 );
+			scene.add( light );
+			var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+			ambLight.position.set(0, 0, 1000 );
+			scene.add(ambLight);
+			
+			controls = new THREE.FlyControls(camera);
+			
+			controls.movementSpeed = 100;
+			controls.domElement = renderer.domElement;
+			controls.rollSpeed = Math.PI / 24;
+			controls.autoForward = false;
+			controls.dragToLook = false;
+			
+			
+			document.addEventListener( 'mousemove', onMouseMove, false );
+			document.addEventListener('mousedown', onMouseDown, false);
+			window.addEventListener( 'resize', onResize, false );
+		}
+		
+		function animate(){
+			requestAnimationFrame( animate );
+			render();
+		}
+		
+		function render() {
+			
+			var delta = clock.getDelta();
+			
+			raycaster.setFromCamera(mouse, camera);
+			
+			var intersects = raycaster.intersectObjects(scene.children);
+		
+			if(intersects.length > 0){
+				if(INTERSECTED != intersects[0].object){
+					if(INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+					
+					INTERSECTED = intersects[0].object;
+					INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+					INTERSECTED.material.emissive.setHex(Math.random()  * 0xffffff);
+				}
+			}
+			else{
+				if(INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+				
+				INTERSECTED = null;
+			}
+		
+			var time = Date.now() * 0.001;
+			var rx = Math.sin( time * 0.7 ) * 0.5,
+				ry = Math.cos( time * 0.3 ) * 0.5,
+				rz = Math.sin( time * 0.2 ) * 0.5;
+
+		
+			/*camera.position.x += (mouseX - camera.position.x) * 0.01;			
+			camera.position.y += (mouseY - camera.position.y) * 0.01;*/			
+			
+			//camera.lookAt(scene.position);
+			
+			root.traverse(function(object){
+				object.rotation.x = rx;
+				object.rotation.y = ry;
+				object.rotation.z = rz;
+			});
+			
+			//controls.movementSpeed = 0.33 * d;
+			controls.update(delta);
+			
+			renderer.render( scene, camera );
+		}
+		
+		function onMouseDown(event){
+			scene.remove(INTERSECTED);
+			//INTERSECTED.scale.set(2,2,2);
+		}
+		
+		
+		function onMouseMove( event ){
+			event.preventDefault();
+			
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+			
+			/*mouseX = (event.clientX - windowHalfX) * 10;
+			mouseY = (event.clientY - windowHalfY) * 10;*/
+		}
+		
+		
+		function onResize( event ){
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize(window.innerWidth, window.innerHeight );
+		}
+    </script>
+  </body>
+</html>

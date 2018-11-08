@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lights!</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script>
+		var camera, renderer, scene, raycaster;
+		var geometry, cube, circle, group;
+		
+		var mouse = new THREE.Vector2();
+		var mouseX = 0;
+		var mouseY = 0;
+		
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+		init();
+		animate();
+	
+		function init() {
+		
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x191919 );
+			var aspect = window.innerWidth / window.innerHeight;
+
+			camera = new THREE.PerspectiveCamera( 60, aspect, 1, 15000 );
+			camera.position.y = 25;
+			camera.position.z = 200;
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+		
+			var geometry = new THREE.PlaneBufferGeometry(1000, 1000, 32);
+			var material = new THREE.MeshPhongMaterial({color: 0xbfc3c9, side: THREE.DoubleSide});
+			var plane = new THREE.Mesh(geometry, material);
+			plane.rotateX(-Math.PI / 2);
+			scene.add(plane);
+			
+			
+			
+			
+			
+			
+			// lights
+			var spotLight = new THREE.SpotLight(0xFFFFFF);
+			spotLight.position.set(0,10,0);
+			spotLight.castShadow = true;
+			spotLight.shadow.mapSize.width = 1024;
+			spotLight.shadow.mapSize.height = 1024;
+			spotLight.shadow.camera.near = 500;
+			spotLight.shadow.camera.far = 4000;
+			spotLight.shadow.camera.fov = 30;
+			
+			scene.add(spotLight);
+			
+			/*var light = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+			light.position.set(0, 0, 50 );
+			scene.add( light );
+			var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+			ambLight.position.set(0, 0, 50 );
+			scene.add(ambLight);*/
+			
+			
+			document.addEventListener( 'mousemove', onMouseMove, false );
+			
+			window.addEventListener( 'resize', onResize, false );
+		}
+		
+		function animate(){
+			requestAnimationFrame( animate );
+			render();
+		}
+		
+	
+		function render() {
+			
+			renderer.render( scene, camera );
+		}
+		
+		
+		
+		function onMouseMove( event ){
+			mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+			mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+		}
+		
+		
+		function onResize( event ){
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize(window.innerWidth, window.innerHeight );
+		}
+    </script>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Even More Cubes</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script>
+		var camera, renderer, scene;
+		var geometry, root;
+		
+		var mouseX = 0;
+		var mouseY = 0;
+		
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+		init();
+		animate();
+	
+		function init() {
+		
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xffffff );
+			var aspect = window.innerWidth / window.innerHeight;
+
+			camera = new THREE.PerspectiveCamera( 60, aspect, 1, 15000 );
+			camera.position.z = 500;
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+			var geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
+			var material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
+			
+			root = new THREE.Mesh(geometry, material);
+			root.position.x = 1000;
+			scene.add(root);
+			
+			var amount = 200, object, parent = root;
+			
+			for(var i = 0; i < amount; i++){
+				object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff}));
+				object.position.x = 100;
+				
+				
+				parent.add(object);
+				parent = object;
+			}
+			
+			parent = root;
+			
+			for(var i = 0; i < amount; i++){
+				object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff}));
+				object.position.x = -100;
+				
+				parent.add(object);
+				parent = object;
+			}
+			
+			parent = root;
+			
+			for(var i = 0; i < amount; i++){
+				object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff}));
+				object.position.y = 100;
+				
+				parent.add(object);
+				parent = object;
+			}
+			
+			parent = root;
+			
+			for(var i = 0; i < amount; i++){
+				object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff}));
+				object.position.y = -100;
+				
+				parent.add(object);
+				parent = object;
+			}
+			
+			// lights
+			var light = new THREE.PointLight(0xFFFFFF, 0.5);
+			light.position.set(0, 0, 1000 );
+			scene.add( light );
+			var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+			ambLight.position.set(0, 0, 1000 );
+			scene.add(ambLight);
+			
+			
+			document.addEventListener( 'mousemove', onMouseMove, false );
+			
+			window.addEventListener( 'resize', onResize, false );
+		}
+		
+		function animate(){
+			requestAnimationFrame( animate );
+			render();
+		}
+		
+		function render() {
+			var time = Date.now() * 0.001;
+			var rx = Math.sin( time * 0.7 ) * 0.5,
+				ry = Math.cos( time * 0.3 ) * 0.5,
+				rz = Math.sin( time * 0.2 ) * 0.5;
+
+		
+			camera.position.x += (mouseX - camera.position.x) * 0.01;			
+			camera.position.y += (mouseY - camera.position.y) * 0.01;			
+			
+			camera.lookAt(scene.position);
+			
+			root.traverse(function(object){
+				object.rotation.x = rx;
+				object.rotation.y = ry;
+				object.rotation.z = rz;
+			});
+			
+			
+			renderer.render( scene, camera );
+		}
+		
+		
+		
+		function onMouseMove( event ){
+			mouseX = (event.clientX - windowHalfX) * 10;
+			mouseY = (event.clientY - windowHalfY) * 10;
+		}
+		
+		
+		function onResize( event ){
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize(window.innerWidth, window.innerHeight );
+		}
+    </script>
+  </body>
+</html>

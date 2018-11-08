@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Drag Me!</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script>
+		var camera, renderer, scene;
+		var cube;
+		var plane;
+		
+		var targetRotationY = 0;
+		var targetRotationOnMouseDownY = 0;
+		var targetRotationX = 0;
+		var targetRotationOnMouseDownX = 0;
+		
+		var mouseX = 0;
+		var mouseXOnMouseDown = 0;
+		
+		var mouseY = 0;
+		var mouseYOnMouseDown = 0;
+		
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+		init();
+		animate();
+	
+		function init() {
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xf0f0f0 );
+			var aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 75, aspect, 1, 1000 );
+			camera.position.z = 100;
+			camera.position.y = 30;
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+			// cube
+			var geometry = new THREE.BoxGeometry( 20, 20, 20 );
+			var material = new THREE.MeshPhongMaterial({ color: Math.random() * 0xffffff, specular: 0x2f5da8, shininess: 20});
+			cube = new THREE.Mesh( geometry, material );
+			cube.position.y = 30;
+			scene.add( cube );
+			
+			// plane
+			var geometry = new THREE.PlaneBufferGeometry(20,20);
+			geometry.rotateX( - Math.PI / 2);
+			var material = new THREE.MeshBasicMaterial({color: 0xe0e0e0, overdraw: 0.5} );
+			plane = new THREE.Mesh( geometry, material );
+			scene.add(plane);
+			
+			// lights
+			var light = new THREE.PointLight(0xFFFFFF, 0.5);
+			light.position.set(0, 0, 25 );
+			scene.add( light );
+			var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+			ambLight.position.set(0, 0, 25 );
+			scene.add(ambLight);
+			
+			
+			document.addEventListener( 'mousedown', onMouseDown, false );
+			
+			window.addEventListener( 'resize', onResize, false );
+		}
+		
+		function animate(){
+			requestAnimationFrame( animate );
+			render();
+		}
+		
+		function render() {
+				plane.rotation.y = cube.rotation.y += (targetRotationY - cube.rotation.y) * 0.05;
+				//plane.rotation.x = cube.rotation.x += (targetRotationX - cube.rotation.x) * 0.05;
+	
+				renderer.render( scene, camera );
+		}
+		
+		function onMouseDown(event){
+			event.preventDefault();
+			
+			document.addEventListener( 'mousemove', onMouseMove, false);
+			document.addEventListener( 'mouseup', onMouseUp, false);
+			document.addEventListener( 'mouseout', onMouseOut, false);
+			
+			mouseXOnMouseDown = event.clientX - windowHalfX;
+			mouseYOnMouseDown = event.clientY - windowHalfY;
+			
+			targetRotationOnMouseDownY = targetRotationY;
+			targetRotationOnMouseDownX = targetRotationX;
+		}
+		
+		function onMouseMove( event ){
+			mouseX = event.clientX - windowHalfX;
+			mouseY = event.clientY - windowHalfY;
+			
+			targetRotationY = targetRotationOnMouseDownY + ( mouseX - mouseXOnMouseDown ) * 0.02;
+			targetRotationX = targetRotationOnMouseDownX + ( mouseY - mouseYOnMouseDown ) * 0.02;
+			
+			var time = Date.now();
+			
+			if(time % 13 == 0)
+				cube.material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
+		}
+		
+		function onMouseUp(event) {
+			document.removeEventListener( 'mousemove', onMouseMove, false );
+			document.removeEventListener( 'mouseup', onMouseUp, false );
+			document.removeEventListener( 'mouseout', onMouseOut, false );
+		}
+		
+		function onMouseOut( event ){
+			document.removeEventListener( 'mousemove', onMouseMove, false );
+			document.removeEventListener( 'mouseup', onMouseUp, false );
+			document.removeEventListener( 'mouseout', onMouseOut, false );
+		}
+		
+		function onResize( event ){
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize(window.innerWidth, window.innerHeight );
+		}
+    </script>
+  </body>
+</html>

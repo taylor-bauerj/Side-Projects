@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Spheres</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script>
+		var camera, renderer, scene, raycaster;
+		var geometry, cube, circle, group;
+		
+		var mouse = new THREE.Vector2();
+		var mouseX = 0;
+		var mouseY = 0;
+		
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		
+		init();
+		animate();
+	
+		function init() {
+		
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xee2e24 );
+			var aspect = window.innerWidth / window.innerHeight;
+
+			camera = new THREE.PerspectiveCamera( 60, aspect, 1, 15000 );
+			camera.position.y = 25;
+			camera.position.z = 200;
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+			raycaster = new THREE.Raycaster();
+			
+			var sRadius = 1;
+			
+			var geometry = new THREE.SphereBufferGeometry( sRadius, 32, 32 );
+			var material = new THREE.MeshPhongMaterial({color: 0xffffff});
+			
+			group = new THREE.Group();
+			
+			var sPosition = 0;
+			var radius = 100;
+			var amount = 1000;
+			var amountPerCircle = 100;
+			
+			var counter = 0;
+			for(var i = 0; i < amount; i++){
+				
+				if(counter == amountPerCircle){
+					counter = 0;
+					radius -= 10;
+					amountPerCircle -= 10;
+				}
+			
+				var mesh = new THREE.Mesh(geometry, material);
+				sPosition = (counter / (amountPerCircle/2)) * Math.PI;
+				mesh.position.x = (radius * Math.cos(sPosition));
+				mesh.position.y = (radius * Math.sin(sPosition));
+				//mesh.position.z = Math.random() * 25;
+				
+				group.add(mesh);
+				
+				counter++;
+			}
+			
+			var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xf6c344}));
+			mesh.position.y = Math.PI;
+			//group.add(mesh);
+			
+			var groupTemp = group.clone();
+			//scene.add(groupTemp);
+			var groupAmount = 5;
+			for(var i = 0; i < groupAmount; i++){
+				
+				groupTemp.position.z = (i * 10) + 10;
+				//groupTemp.rotateX(-Math.PI / 2);
+				group.add(groupTemp);
+				groupTemp = groupTemp.clone();
+			}
+			
+			
+			group.rotateX(-Math.PI /2);
+			
+			scene.add(group);
+			
+			
+			
+			
+			
+			
+			
+			// lights
+			var light = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+			light.position.set(0, 0, 50 );
+			scene.add( light );
+			var ambLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+			ambLight.position.set(0, 0, 50 );
+			scene.add(ambLight);
+			
+			
+			document.addEventListener( 'mousemove', onMouseMove, false );
+			
+			window.addEventListener( 'resize', onResize, false );
+		}
+		
+		function animate(){
+			requestAnimationFrame( animate );
+			render();
+		}
+		
+	
+		function render() {
+			var geometry = new THREE.SphereBufferGeometry( 1, 32, 32 );
+			var material = new THREE.MeshPhongMaterial({color: 0xffffff});
+			var mesh = new THREE.Mesh(geometry, material);
+			mesh.position.x = mouseX;
+			mesh.position.y = mouseY;
+			
+			var time = Date.now() * .01;
+			mesh.position.z = time * Math.sin();
+			//scene.add(mesh);
+		
+			group.rotation.z += 0.001;
+			renderer.render( scene, camera );
+		}
+		
+		
+		
+		function onMouseMove( event ){
+			mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+			mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+			raycaster.setFromCamera(mouse.clone(), camera);
+		}
+		
+		
+		function onResize( event ){
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize(window.innerWidth, window.innerHeight );
+		}
+    </script>
+  </body>
+</html>
