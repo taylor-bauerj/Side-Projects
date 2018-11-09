@@ -50,15 +50,15 @@
 		</form>
 	</div>
 	
-	<div id="calculator" class="module">
-		<textarea rows="4" cols="50" disabled="true" data-bind="textInput: equation">
+	<div class="calculatorContainer">
+	<div id="calculator" class="module calculator">
+		<textarea rows="4" cols="38" disabled="true" data-bind="textInput: equation">
 		</textarea><br/>
 		
-		<button type="button" data-bind="click: function(num) { addToEquation('1', num) } ">1</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('2', num) } ">2</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('3', num) } ">3</button>
-		
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<button type="button" data-bind="click: function(num) { addToEquation('7', num) } ">7</button>
+		<button type="button" data-bind="click: function(num) { addToEquation('8', num) } ">8</button>
+		<button type="button" data-bind="click: function(num) { addToEquation('9', num) } ">9</button>
+	
 		<button type="button" data-bind="click: function(num) { addToEquation('+', num) } ">+</button>
 		
 		<br/><br/>
@@ -66,20 +66,21 @@
 		<button type="button" data-bind="click: function(num) { addToEquation('5', num) } ">5</button>
 		<button type="button" data-bind="click: function(num) { addToEquation('6', num) } ">6</button>
 		
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<button type="button" data-bind="click: function(num) { addToEquation('-', num) } ">-</button>
 		
 		<br/><br/>
-		<button type="button" data-bind="click: function(num) { addToEquation('7', num) } ">7</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('8', num) } ">8</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('9', num) } ">9</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('0', num) } ">0</button>
+		<button type="button" data-bind="click: function(num) { addToEquation('1', num) } ">1</button>
+		<button type="button" data-bind="click: function(num) { addToEquation('2', num) } ">2</button>
+		<button type="button" data-bind="click: function(num) { addToEquation('3', num) } ">3</button>
 		<br/><br/>
+		<button type="button" data-bind="click: function(num) { addToEquation('0', num) } ">0</button>
+		
 		
 		<button type="button" data-bind="click: clear">Clear</button>
 		<button type="button" data-bind="click: evaluate">Equal</button>
 		
 		<span data-bind="text: answer"></span>
+	</div>
 	</div>
 
 <!-- JQuery JS -->
@@ -94,8 +95,6 @@
 		self.fullName = ko.computed(function(){
 			return self.firstName() + " " + self.lastName();
 		});
-		
-		
 	};
 	
 	var ClickModel = function() {
@@ -110,27 +109,21 @@
 		this.itemToAdd = ko.observable("");
 		this.itemToEdit = ko.observable("");
 		this.selectedItems = ko.observableArray();
-		
-		
 		this.addItem = function() {
 			if(this.itemToAdd() != ""){
 				this.items.push(this.itemToAdd());
 				this.itemToAdd("");
 			}
 		}.bind(this);
-		
-		
 		this.removeItem = function() {
 			this.items.removeAll(this.selectedItems());
 			this.selectedItems([]);
 		}.bind(this);
-		
 		this.editItem = function() {
 			if(this.itemToEdit() != "" && this.selectedItems().length == 1) {
 				this.items.replace(this.selectedItems()[0], this.itemToEdit());
 			}
 		}.bind(this);
-		
 	};
 	
 	var NavbarModel = function() {
@@ -138,11 +131,9 @@
 		self.folders = ['Home', 'Name', 'Clicker', 'Shopping List', 'Calculator'];
 		self.chosenFolderId = ko.observable();
 		self.chosenFolderData = ko.observable();
-		
 		self.goToFolder = function(folder) {
 			location.hash = folder;
 		};
-		
 		Sammy(function() {
 			this.get('#Name', function() {
 				$('.module').css('display', 'none');
@@ -171,23 +162,18 @@
 		var self = this;
 		self.equation = ko.observableArray("");
 		self.answer = ko.observable("");
-	
 		self.addToEquation = function(num) {
 			var temp = self.equation();
 			self.equation(temp + num);
 		}
-		
 		self.clear = function() {
 			self.equation("");
 			self.answer("");
 		}
-		
 		self.evaluate = function() {
-			
 			// checks if the first digit is invalid
 			if(self.equation()[0] == "+" || self.equation()[self.equation().length - 1] == "+" || 
 				self.equation()[self.equation().length - 1] == "-") {
-				
 				self.answer("Not a valid format.");
 				return;
 			}
@@ -195,35 +181,28 @@
 			var operators = [];
 			var length = self.equation().length;
 			var position = 0;
-			
 			// loops through the equation to compile 2 arrays
 			// compiledEquation: the numbers to compute
 			// operators: the operators that the numbers will use to calculate
 			begin: for(var i = 0; i < length; i++) {
 				var eqToAdd = "";
 				var curr = self.equation()[i];
-				
 				// adds to the operators array by checking if the current digit is an operator
 				// does not count the first digit, if a '-' then it is a negative number
 				if(self.equation()[i] == '+' || self.equation()[i] == '-' && i != 0) {
 					operators[operators.length] = curr;
-					
 					if(self.equation()[i+1] == '+' || self.equation()[i+1] == '-') {
 						self.answer("Not a valid format.");
 						return;
 					}
-					
 					// do not go to next loop, the operator has been added
 					continue;
 				}
-				
 				// will loop until an operator is found
 				for(var j = i; j < length; j++) {
-				
 					// only true if it is the first digit. purpose is to check if first number is negative
 					var first = false;
 					if(j == 0 && self.equation()[j] == '-') first = true;
-					
 					// breaks out of loop if an operator is found, adds compiled numbers to compiledEquation array
 					if( (self.equation()[j] == '+' || self.equation()[j] == '-') && !first) { 
 						compiledEquation[position] = eqToAdd;
@@ -231,9 +210,7 @@
 						i = j - 1;
 						break;
 					}
-					
 					eqToAdd += self.equation()[j];
-					
 					// checks if on the last number, breaks out of loops
 					if(j == length - 1) {
 						compiledEquation[position] = eqToAdd;
@@ -242,29 +219,26 @@
 				}
 			}
 			var answer = 0;
-			
 			// if no operators were added
 			if(operators.length == 0) {
 				self.answer("The answer is: " + compiledEquation[0]);
 				return;
 			}
-			
 			// looks at operators array and determines how the numbers should be calculated 
 			for(var i = 0; i < operators.length; i++) {
 				var op = operators[i];
 				if(op == '+') answer = parseInt(compiledEquation[0]) + parseInt(compiledEquation[1]);
 				else if(op == '-') answer = parseInt(compiledEquation[0]) - parseInt(compiledEquation[1]);
-				
 				// removes first element of compiledEquation array, replaces with last calculated number
 				compiledEquation.shift();
 				compiledEquation[0] = answer.toString();
 			}
 			self.answer("The answer is: " + answer);
+			self.equation(self.equation() + "\n" + compiledEquation[0]);
 		}
 	};
 	
 	var shopping = new SimpleList(["A","B","C"]);
-	
 	ko.applyBindings(new ViewModel("first", "last"), document.getElementById("container1"));
 	ko.applyBindings(new ClickModel(), document.getElementById("container2"));
 	ko.applyBindings(shopping, document.getElementById("container3"));
