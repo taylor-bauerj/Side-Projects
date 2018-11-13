@@ -51,7 +51,7 @@ ul {
     font-weight: bold;
 }
 
-.calculator button {
+.calculator button, .lotto-numbers button {
 	-moz-box-shadow:inset 0px -3px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px -3px 0px 0px #ffffff;
 	box-shadow:inset 0px -3px 0px 0px #ffffff;
@@ -78,7 +78,7 @@ ul {
 	text-shadow:3px 4px 0px #ffffff;
 	min-width: 70px;
 }
-.calculator button:hover {
+.calculator button:hover, .lotto-numbers button:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
 	background:-moz-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
 	background:-webkit-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
@@ -88,7 +88,7 @@ ul {
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#ffffff',GradientType=0);
 	background-color:#f6f6f6;
 }
-.calculator button:active {
+.calculator button:active, .lotto-numbers button:active {
 	position:relative;
 	top:1px;
 }
@@ -97,4 +97,22 @@ ul {
 	margin: 0 40%;
 	width: 50%;
 	
+}
+
+.lotto-numbers {
+	color: white;
+}
+
+.lotto-numbers input {
+	margin: 10px 10px;
+	border: 2px solid;
+	border-radius: 25px;
+	text-align: center;
+	width: 50px;
+	height: 50px;
+}
+
+.lotto-container {
+	margin: 0 40%;
+	width: 50%;
 }

@@ -5,6 +5,10 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Allerta+Stencil" rel="stylesheet">
+	<style>
+		body { font-family: 'Allerta Stencil', sans-serif; }
+	</style>
 </head>
 
 <body>
@@ -51,36 +55,65 @@
 	</div>
 	
 	<div class="calculatorContainer">
-	<div id="calculator" class="module calculator">
-		<textarea rows="4" cols="38" disabled="true" data-bind="textInput: equation">
-		</textarea><br/>
+		<div id="calculator" class="module calculator">
+			<textarea rows="4" cols="38" disabled="true" data-bind="textInput: equation">
+			</textarea><br/>
+			
+			<button type="button" data-bind="click: function(num) { addToEquation('7', num) } ">7</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('8', num) } ">8</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('9', num) } ">9</button>
 		
-		<button type="button" data-bind="click: function(num) { addToEquation('7', num) } ">7</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('8', num) } ">8</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('9', num) } ">9</button>
-	
-		<button type="button" data-bind="click: function(num) { addToEquation('+', num) } ">+</button>
-		
-		<br/><br/>
-		<button type="button" data-bind="click: function(num) { addToEquation('4', num) } ">4</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('5', num) } ">5</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('6', num) } ">6</button>
-		
-		<button type="button" data-bind="click: function(num) { addToEquation('-', num) } ">-</button>
-		
-		<br/><br/>
-		<button type="button" data-bind="click: function(num) { addToEquation('1', num) } ">1</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('2', num) } ">2</button>
-		<button type="button" data-bind="click: function(num) { addToEquation('3', num) } ">3</button>
-		<br/><br/>
-		<button type="button" data-bind="click: function(num) { addToEquation('0', num) } ">0</button>
-		
-		
-		<button type="button" data-bind="click: clear">Clear</button>
-		<button type="button" data-bind="click: evaluate">Equal</button>
-		
-		<span data-bind="text: answer"></span>
+			<button type="button" data-bind="click: function(num) { addToEquation('+', num) } ">+</button>
+			
+			<br/><br/>
+			<button type="button" data-bind="click: function(num) { addToEquation('4', num) } ">4</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('5', num) } ">5</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('6', num) } ">6</button>
+			
+			<button type="button" data-bind="click: function(num) { addToEquation('-', num) } ">-</button>
+			
+			<br/><br/>
+			<button type="button" data-bind="click: function(num) { addToEquation('1', num) } ">1</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('2', num) } ">2</button>
+			<button type="button" data-bind="click: function(num) { addToEquation('3', num) } ">3</button>
+			<br/><br/>
+			<button type="button" data-bind="click: function(num) { addToEquation('0', num) } ">0</button>
+			
+			
+			<button type="button" data-bind="click: clear">Clear</button>
+			<button type="button" data-bind="click: evaluate">Equal</button>
+			
+			<span data-bind="text: answer"></span>
+		</div>
 	</div>
+	
+	<div class="lotto-container">
+		<div id="lotto-check" class="module lotto-numbers">
+				<input type="text" data-bind="value: numbers()[0]" id="num1"/>
+				<input type="text" data-bind="value: numbers()[1]" id="num2" />
+			
+				<input type="text" data-bind="value: numbers()[2]" id="num3" />
+				<input type="text" data-bind="value: numbers()[3]" id="num4" />
+			
+				<input type="text" data-bind="value: numbers()[4]" id="num5" />
+				
+				<br/>
+				Extra Number: 
+				<input type="text" data-bind="value: extra" id="num6"/>
+				<br/>
+				
+				<button type="button" data-bind="click: calculateWinnings">Submit</button>
+				<button type="button" data-bind="click: randomize">Random Draw</button>
+				
+				<br/><br/>
+				
+				<span data-bind="text: result"></span>
+				
+				<br/>
+				<span data-bind="text: latestDraw"></span>
+				
+			
+		</div>
 	</div>
 
 <!-- JQuery JS -->
@@ -128,7 +161,7 @@
 	
 	var NavbarModel = function() {
 		self = this;
-		self.folders = ['Home', 'Name', 'Clicker', 'Shopping List', 'Calculator'];
+		self.folders = ['Home', 'Name', 'Clicker', 'Shopping List', 'Calculator', 'Lottery Checker'];
 		self.chosenFolderId = ko.observable();
 		self.chosenFolderData = ko.observable();
 		self.goToFolder = function(folder) {
@@ -154,6 +187,10 @@
 			this.get('#Calculator', function() {
 				$('.module').css('display', 'none');
 				$('#calculator').css('display', 'initial');
+			});
+			this.get('#Lottery%20Checker', function() {
+				$('.module').css('display', 'none');
+				$('#lotto-check').css('display', 'initial');
 			});
 		}).run();
 	};
@@ -236,6 +273,118 @@
 			self.answer("The answer is: " + answer);
 			self.equation(self.equation() + "\n" + compiledEquation[0]);
 		}
+		
+	};
+	
+	var lotteryModel = function() {
+		var self = this;
+		self.numbers = ko.observableArray();
+		self.extra = ko.observable();
+		self.result = ko.observable();
+		self.latestDraw = [5, 29, 34, 53, 57, 24];
+		
+		self.winningAmount = 0;
+		self.amountOfTickets = 0;
+		
+		self.calculateWinnings = function() {
+		
+			var extra = false;
+			var amountCorrect = 0;
+			// array to test if there are duplicates in submission
+			var counts = [];
+			self.numbers.sort();
+			if(self.numbers().length == 0){
+				self.result("Please enter all numbers");
+				return;
+			}
+		
+			for(var i = 0; i < self.numbers().length; i++) {
+				if(counts[self.numbers()[i]] === undefined) {
+					counts[self.numbers()[i]] = 1;
+				}
+				else {
+					self.result("No duplicates can be done.");
+					return;
+				}
+			
+				if(self.numbers()[i] == null) {
+					self.result("Please enter all numbers.");
+					return;
+				}
+				else if(isNaN(parseInt(self.numbers()[i])) || 
+				parseInt(self.numbers()[i]) < 1 || parseInt(self.numbers()[i]) > 69) {
+					self.result("Please enter valid numbers.");
+					return;
+				}
+				else if(self.latestDraw.includes(parseInt(self.numbers()[i])))
+					amountCorrect++;
+			}
+			
+			if(self.extra() === undefined) {
+				self.result("Put in that extra number!");
+				return;
+			}
+			
+			// after validation, do calculation
+			if(self.extra() == parseInt(self.latestDraw[5]))
+				extra = true;
+			
+			var amountWon = 0;
+			
+			switch(amountCorrect) {
+				case 0:
+					if(extra) amountWon = 4;
+					break;
+				case 1:
+					if(extra) amountWon = 4;
+					break;
+				case 2:
+					if(extra) amountWon = 7;
+					break;
+				case 3:	
+					if(extra) amountWon = 100;
+					else amountWon = 7;
+					break;
+				case 4:
+					amountWon = 100;
+					break;
+				case 5:
+					if(extra) amountWon = 50000000;
+					else amountWon = 1000000;
+					break;
+				default:
+					amountWon = 0;
+			}
+			
+			self.result("You won $" + amountWon + "!");
+			self.winningAmount = amountWon;
+			
+		}
+		
+		self.randomize = function() {
+			var random = 0;
+			var count = [];
+			
+			for(var i = 1; i < 6; i++) {
+				random = Math.floor(Math.random() * 69) + 1;
+				if(count[random] === undefined){
+					document.getElementById('num'+i).value = random;
+					self.numbers()[i-1] = random;
+					count[random] = 1;
+				}
+				else {
+					i--;
+					continue;
+				}
+			}
+			
+			random = Math.floor(Math.random() * 69) + 1;
+			document.getElementById('num6').value = random;
+			self.extra(random);
+			
+			self.calculateWinnings();
+		}
+		
 	};
 	
 	var shopping = new SimpleList(["A","B","C"]);
@@ -243,6 +392,8 @@
 	ko.applyBindings(new ClickModel(), document.getElementById("container2"));
 	ko.applyBindings(shopping, document.getElementById("container3"));
 	ko.applyBindings(new CalculatorModel(), document.getElementById("calculator"));
+	ko.applyBindings(new lotteryModel(), document.getElementById("lotto-check"));
+	
 	ko.applyBindings(new NavbarModel(), document.getElementById("containerHead"));
 	
 	var jsonData = ko.toJSON(shopping);
