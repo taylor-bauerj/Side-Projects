@@ -89,30 +89,65 @@
 	
 	<div class="lotto-container">
 		<div id="lotto-check" class="module lotto-numbers">
-				<input type="text" data-bind="value: numbers()[0]" id="num1"/>
-				<input type="text" data-bind="value: numbers()[1]" id="num2" />
+				<input type="text" data-bind="value: numbers()[0]" id="num1" class="ball"/>
+				<input type="text" data-bind="value: numbers()[1]" id="num2" class="ball"/>
 			
-				<input type="text" data-bind="value: numbers()[2]" id="num3" />
-				<input type="text" data-bind="value: numbers()[3]" id="num4" />
+				<input type="text" data-bind="value: numbers()[2]" id="num3" class="ball"/>
+				<input type="text" data-bind="value: numbers()[3]" id="num4" class="ball"/>
 			
-				<input type="text" data-bind="value: numbers()[4]" id="num5" />
+				<input type="text" data-bind="value: numbers()[4]" id="num5" class="ball"/>
 				
 				<br/>
 				Extra Number: 
-				<input type="text" data-bind="value: extra" id="num6"/>
+				<input type="text" data-bind="value: extra" id="num6" class="ball"/>
 				<br/>
 				
 				<button type="button" data-bind="click: calculateWinnings">Submit</button>
 				<button type="button" data-bind="click: randomize">Random Draw</button>
+				<button type="button" data-bind="click: simulate">Simulate</button>
 				
 				<br/><br/>
 				
 				<span data-bind="text: result"></span>
 				
 				<br/>
-				<span data-bind="text: latestDraw"></span>
+				Winning Numbers: <span data-bind="text: latestDraw"></span>
+				<br/>
+				
+				<p>Tickets sold: <span data-bind="text: soldTickets"></span></p>
+				
+				Ticket Selling Speed: 
+				<input type="range" min="1" max="100" value="50" data-bind="value: ticketSpeed" 
+				style="direction: rtl; margin-left: 50px;" id="speedInput" oninput="speedId.value = speedInput.value">
+				<output id="speedId">50</output>
+				
+				
+				<p>$ from tickets: <span data-bind="text: amountFromTickets"></span></p>
+				<p>Payout: <span data-bind="text: payout"></span></p>
+				<p>Profit: <span data-bind="text: profit"></span></p>
+				
+				<br/>
+				<button type="button" data-bind="click: pause">Pause</button>
+				<button type="button" data-bind="click: resume">Resume</button>
 				
 			
+				<br/><br/>
+				<div class="toTheSide">
+					Winning Tickets:
+					<br/>
+					<select class="ticketDisplay" multiple="multiple" width="50" data-bind="options: ticketWinners"></select>
+					<br/><br/>
+					Stats:
+					<br/>
+					<select multiple="multiple" width="250" size="6">
+						<option data-bind="text: stats()[0]"></option>
+						<option data-bind="text: stats()[1]"></option>
+						<option data-bind="text: stats()[2]"></option>
+						<option data-bind="text: stats()[3]"></option>
+						<option data-bind="text: stats()[4]"></option>
+						<option data-bind="text: stats()[5]"></option>
+					</select>
+				</div>
 		</div>
 	</div>
 
@@ -285,6 +320,20 @@
 		
 		self.winningAmount = 0;
 		self.amountOfTickets = 0;
+		self.soldTickets = ko.observable(0);
+		self.amountFromTickets = ko.observable(0);
+		self.payout = ko.observable(0);
+		self.profit = ko.observable(0);
+		self.ticketWinners = ko.observableArray();
+		
+		self.ticketSpeed = ko.observable(50);
+		
+		self.stats = ko.observableArray(["$4: 0", "$7: 0", "$100: 0", "$1,000,000: 0", "JACKPOT: 0", "Overall: 0"]);
+		
+		var amountOfDollarsWon = [0, 0, 0, 0, 0];
+		
+		var looping = false;
+		var numberOfWinners = 0;
 		
 		self.calculateWinnings = function() {
 		
@@ -356,9 +405,61 @@
 					amountWon = 0;
 			}
 			
+			
+			var reduction = [];
+			
+			switch(amountWon) {
+				case 4:
+					amountOfDollarsWon[0] += 1;
+					reduction = reduce(amountOfDollarsWon[0], self.soldTickets());
+					self.stats.replace(self.stats()[0], "$4: " + reduction[0] + "/" + reduction[1]);
+					break;
+				case 7:
+					amountOfDollarsWon[1] += 1;
+					reduction = reduce(amountOfDollarsWon[1], self.soldTickets());
+					self.stats.replace(self.stats()[1], "$7: " + reduction[0] + "/" + reduction[1]);
+					break;
+				case 100:
+					amountOfDollarsWon[2] += 1;
+					reduction = reduce(amountOfDollarsWon[2], self.soldTickets());
+					self.stats.replace(self.stats()[2], "$100: " + reduction[0] + "/" + reduction[1]);
+					break;
+				case 1000000:
+					amountOfDollarsWon[3] += 1;
+					reduction = reduce(amountOfDollarsWon[3], self.soldTickets());
+					self.stats.replace(self.stats()[3], "$1,000,000: " + reduction[0] + "/" + reduction[1]);
+					break;
+				case 50000000:
+					amountOfDollarsWon[4] += 1;
+					reduction = reduce(amountOfDollarsWon[4], self.soldTickets());
+					self.stats.replace(self.stats()[4], "JACKPOT: " + reduction[0] + "/" + reduction[1]);
+					break;
+				default:
+				
+			}
+			
+			
+			
 			self.result("You won $" + amountWon + "!");
 			self.winningAmount = amountWon;
 			
+			self.soldTickets(self.soldTickets() + 1);
+			if(amountWon > 0){ 
+				self.ticketWinners.push("#" + self.soldTickets() + ": $" + amountWon);
+				numberOfWinners++;
+			}
+			
+			reduction = reduce(numberOfWinners, self.soldTickets());
+			self.stats.replace(self.stats()[5], "Overall: " + reduction[0] + "/" + reduction[1]);
+			
+			self.amountFromTickets(self.amountFromTickets() + 2);
+			self.payout(self.payout() + amountWon);
+			self.profit(self.amountFromTickets() - self.payout());
+			
+			var $sel = $('.ticketDisplay');
+			$sel[0].scrollTop = $sel[0].scrollHeight;
+			
+			if(looping) setTimeout(function(){ self.randomize(); }, self.ticketSpeed() * 2);
 		}
 		
 		self.randomize = function() {
@@ -378,12 +479,28 @@
 				}
 			}
 			
-			random = Math.floor(Math.random() * 69) + 1;
+			random = Math.floor(Math.random() * 26) + 1;
 			document.getElementById('num6').value = random;
 			self.extra(random);
 			
 			self.calculateWinnings();
 		}
+		
+		self.pause = function() {
+			looping = false;
+		}
+		
+		self.resume = function() {
+			looping = true;
+			self.randomize();
+		}
+		
+		self.simulate = function() {
+			looping = true;
+			self.randomize();
+		}
+		
+	
 		
 	};
 	
@@ -409,6 +526,18 @@
 	request.onload = function() {
 		console.log(request.response);
 	}*/
+	
+	function updateTextInput(val) {
+		document.getElementById('speedValue').value = val;
+	}
+	
+	function reduce(numerator, denominator) {
+		var gcd = function gcd(a, b) {
+			return b ? gcd(b, a%b) : a;
+		}
+		gcd = gcd(numerator, denominator);
+		return [numerator/gcd, denominator/gcd];
+	}
 </script>
 </body>
 

@@ -103,7 +103,7 @@ ul {
 	color: white;
 }
 
-.lotto-numbers input {
+.lotto-numbers .ball {
 	margin: 10px 10px;
 	border: 2px solid;
 	border-radius: 25px;
@@ -113,6 +113,17 @@ ul {
 }
 
 .lotto-container {
-	margin: 0 40%;
-	width: 50%;
+	margin: 0 30%;
+	width: 75%;
+}
+
+.lotto-container select {
+	width: 250px;
+}
+
+.toTheSide {
+	position: absolute;
+	left: 25px;
+	top: 100px;
+	display: block;
 }
